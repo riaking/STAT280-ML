@@ -1,25 +1,30 @@
 import joblib
 import pandas as pd
+from xgboost import XGBClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 
-MODEL = 'random-forest'
+#MODEL = 'XGBClassifier'
+MODEL = 'MLPClassifier'
+#MODEL = 'random-forest'
 
-new_data = pd.DataFrame(pd.read_csv('Outputs/TaggedData_per5secs.csv'))
+x_train = pd.DataFrame(pd.read_csv('Data/x_train.csv'))
+y_train = pd.DataFrame(pd.read_csv('Data/y_train.csv'))
 
-sc = StandardScaler()
-ip = new_data['ip'].values
-new_data['ip'] = sc.fit_transform(ip.reshape(-1, 1))
-new_data.ip.describe()
+y_train = y_train.drop(['Unnamed: 0'], axis=1)
+x_train = x_train.drop(['Unnamed: 0'], axis=1)
 
-x = new_data.drop(['click_time', 'attributed_time', 'is_attributed', 'seconds_5', 'hm_seconds_5', 'isFraud'], axis=1)
-y = new_data['isFraud'].values
+#rf = RandomForestClassifier(max_depth = 5)
+#rf.fit(x_train, y_train)
+#joblib.dump(rf, MODEL + '/' + MODEL + '.joblib')
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 123)
+#xgb = XGBClassifier(max_depth=10, subsample=0.9, tree_method='hist', max_bin = 300)
+#xgb.fit(x_train, y_train)
+#joblib.dump(xgb, MODEL + '/' + MODEL + '.joblib')
 
-rf = RandomForestClassifier(max_depth = 4)
-rf.fit(x_train, y_train)
+nn = MLPClassifier(hidden_layer_sizes=(150,100,50), max_iter=300,activation = 'relu',solver='adam',random_state=280)
+nn.fit(x_train, y_train)
+joblib.dump(nn, MODEL + '/' + MODEL + '.joblib')
 
-joblib.dump(rf, MODEL + '.joblib')
-print("Done")
+print("Training Done")
